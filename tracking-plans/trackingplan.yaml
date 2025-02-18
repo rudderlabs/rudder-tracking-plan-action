@@ -1,0 +1,20 @@
+version: rudder/0.1
+kind: tp
+metadata:
+  name: mytrackingplan
+spec:
+  id: mytrackingplan
+  display_name: "Product Tracking Plan"
+  description: "Contains all the events and properties for the Product Tracking Plan."
+  rules:
+    - type: event_rule
+      id: product_viewed_rule
+      event:
+        $ref: "#/events/myeventgroup/product_viewed"
+      allow_unplanned: false
+      properties:
+        - $ref: "#/properties/mypropertygroup/product_sku"
+          required: true
+        - $ref: "#/properties/mypropertygroup/category"
+          required: false
+

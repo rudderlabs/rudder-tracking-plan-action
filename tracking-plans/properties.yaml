@@ -1,0 +1,15 @@
+version: rudder/v0.1
+kind: properties
+metadata:
+  name: mypropertygroup
+spec:
+  properties:
+    - id: product_sku
+      display_name: "SKU"
+      type: string
+      description: "Product SKU"
+    - id: category
+      display_name: "Category"
+      type: string
+      description: "Product's category"
+

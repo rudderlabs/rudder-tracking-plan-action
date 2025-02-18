@@ -50,10 +50,10 @@ runs:
       if: inputs.mode == 'validate-dry-run'
       shell: bash
       run: |
-        rudder-cli apply -l ${{ inputs.folder_path }} --dry-run
+        rudder-cli tp apply -l ${{ inputs.folder_path }} --dry-run
 
     - name: Apply tracking plan
       if: inputs.mode == 'apply'
       shell: bash
       run: |
-        rudder-cli apply -l ${{ inputs.folder_path }}
+        rudder-cli tp apply -l ${{ inputs.folder_path }}

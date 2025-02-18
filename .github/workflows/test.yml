@@ -1,0 +1,34 @@
+name: Test Tracking Plan Action
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Review Tracking Plans
+        uses: ./
+        with:
+          folder_path: 'tracking-plans'  # Adjust this path to where your tracking plans are stored
+          mode: 'apply'
+          access_token: ${{ secrets.RUDDER_ACCESS_TOKEN }}
+
+  apply:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply Tracking Plans
+        uses: ./
+        with:
+          folder_path: 'tracking-plans'  # Adjust this path to where your tracking plans are stored
+          mode: 'apply'
+          access_token: ${{ secrets.RUDDER_ACCESS_TOKEN }}
