@@ -1,0 +1,59 @@
+name: 'Rudderstack Tracking Plan Manager'
+description: 'Validate and manage Rudderstack tracking plans through GitHub Actions'
+author: 'Your Name'
+
+branding:
+  icon: 'upload-cloud'  
+  color: 'blue'
+
+inputs:
+  folder_path:
+    description: 'Path to the folder containing tracking plan files'
+    required: true
+  mode:
+    description: 'Operation mode (review or apply)'
+    required: true
+  access_token:
+    description: 'Rudderstack access token'
+    required: true
+  cli_version:
+    description: 'Version of rudder-cli to use'
+    required: false
+    default: 'v0.2.0'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download Rudder CLI
+      shell: bash
+      run: |
+        curl -L https://github.com/rudderlabs/rudder-iac/releases/download/${{ inputs.cli_version }}/rudder-cli_Linux_x86_64.tar.gz | tar -xz rudder-cli
+        chmod +x rudder-cli
+        sudo mv rudder-cli /usr/local/bin/
+
+    - name: Create Rudder config directory
+      shell: bash
+      run: mkdir -p ~/.rudder
+
+    - name: Setup Rudder configuration
+      shell: bash
+      run: |
+        echo "{\"auth\":{\"accessToken\":\"${{ inputs.access_token }}\"}}" > ~/.rudder/config.json
+
+    - name: Validate tracking plan
+      if: inputs.mode == 'review'
+      shell: bash
+      run: |
+        rudder-cli tp validate -l ${{ inputs.folder_path }}
+        
+    - name: Perform dry run
+      if: inputs.mode == 'validate-dry-run'
+      shell: bash
+      run: |
+        rudder-cli tp apply -l ${{ inputs.folder_path }} --dry-run
+
+    - name: Apply tracking plan
+      if: inputs.mode == 'apply'
+      shell: bash
+      run: |
+        rudder-cli tp apply -l ${{ inputs.folder_path }}
