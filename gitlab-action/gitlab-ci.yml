@@ -1,0 +1,30 @@
+image: ubuntu:latest
+
+variables:
+  CLI_VERSION: "v0.2.0"
+
+.setup_rudder_cli: &setup_rudder_cli |
+  apt-get update && apt-get install -y curl
+  curl -L https://github.com/rudderlabs/rudder-iac/releases/download/${CLI_VERSION}/rudder-cli_Linux_x86_64.tar.gz | tar -xz rudder-cli
+  chmod +x rudder-cli
+  mv rudder-cli /usr/local/bin/
+  mkdir -p ~/.rudder
+  echo "{\"auth\":{\"accessToken\":\"${RUDDER_ACCESS_TOKEN}\"}}" > ~/.rudder/config.json
+
+review:
+  stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  script:
+    - *setup_rudder_cli
+    - rudder-cli tp validate -l ${TRACKING_PLANS_PATH}
+    - rudder-cli apply -l ${TRACKING_PLANS_PATH} --dry-run
+
+apply:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+  script:
+    - *setup_rudder_cli
+    - rudder-cli apply -l ${TRACKING_PLANS_PATH}
