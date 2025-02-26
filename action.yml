@@ -1,28 +1,25 @@
-name: 'Rudderstack Tracking Plan Manager'
-description: 'Validate and manage Rudderstack tracking plans through GitHub Actions'
-author: 'Your Name'
+name: "Rudderstack Tracking Plan Manager"
+description: "Validate and manage Rudderstack tracking plans through GitHub Actions"
+author: "Your Name"
 
 branding:
-  icon: 'upload-cloud'  
-  color: 'blue'
+  icon: "upload-cloud"
+  color: "blue"
 
 inputs:
-  folder_path:
-    description: 'Path to the folder containing tracking plan files'
+  location:
+    description: "Path to the folder containing tracking plan files"
     required: true
   mode:
-    description: 'Operation mode (review or apply)'
-    required: true
-  access_token:
-    description: 'Rudderstack access token'
+    description: "Operation mode. Must be one of: 'validate', 'dry-run', or 'apply'"
     required: true
   cli_version:
-    description: 'Version of rudder-cli to use'
+    description: "Version of rudder-cli to use"
     required: false
-    default: 'v0.2.0'
+    default: "v0.2.0"
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Download Rudder CLI
       shell: bash
@@ -31,29 +28,34 @@ runs:
         chmod +x rudder-cli
         sudo mv rudder-cli /usr/local/bin/
 
-    - name: Create Rudder config directory
-      shell: bash
-      run: mkdir -p ~/.rudder
-
-    - name: Setup Rudder configuration
+    - name: Verify environment
       shell: bash
       run: |
-        echo "{\"auth\":{\"accessToken\":\"${{ inputs.access_token }}\"}}" > ~/.rudder/config.json
+        if [ -z "$RUDDERSTACK_ACCESS_TOKEN" ]; then
+          echo "::error::RUDDERSTACK_ACCESS_TOKEN environment variable is not set. Please set it using repository secrets."
+          exit 1
+        fi
+
+        # Validate mode input
+        if [[ "${{ inputs.mode }}" != "validate" && "${{ inputs.mode }}" != "dry-run" && "${{ inputs.mode }}" != "apply" ]]; then
+          echo "::error::Invalid mode: ${{ inputs.mode }}. Mode must be one of: validate, dry-run, apply"
+          exit 1
+        fi
 
     - name: Validate tracking plan
-      if: inputs.mode == 'review'
+      if: inputs.mode == 'validate'
       shell: bash
       run: |
-        rudder-cli tp validate -l ${{ inputs.folder_path }}
-        
+        rudder-cli tp validate -l ${{ inputs.location }}
+
     - name: Perform dry run
-      if: inputs.mode == 'validate-dry-run'
+      if: inputs.mode == 'dry-run'
       shell: bash
       run: |
-        rudder-cli tp apply -l ${{ inputs.folder_path }} --dry-run
+        rudder-cli tp apply -l ${{ inputs.location }} --dry-run
 
     - name: Apply tracking plan
       if: inputs.mode == 'apply'
       shell: bash
       run: |
-        rudder-cli tp apply -l ${{ inputs.folder_path }}
+        rudder-cli tp apply -l ${{ inputs.location }}
