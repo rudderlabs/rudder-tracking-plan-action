@@ -16,7 +16,7 @@ inputs:
   cli_version:
     description: "Version of rudder-cli to use"
     required: false
-    default: "v0.2.0"
+    default: "v0.3.0"
 
 runs:
   using: "composite"
@@ -24,6 +24,16 @@ runs:
     - name: Download Rudder CLI
       shell: bash
       run: |
+        # Validate minimum CLI version
+        required_version="0.3.0"
+        input_version="${{ inputs.cli_version }}"
+        input_version="${input_version#v}" # Remove 'v' prefix if present
+
+        if ! printf '%s\n' "$required_version" "$input_version" | sort -V -C; then
+          echo "::error::CLI version must be at least v${required_version}. Got: ${{ inputs.cli_version }}"
+          exit 1
+        fi
+
         curl -L https://github.com/rudderlabs/rudder-iac/releases/download/${{ inputs.cli_version }}/rudder-cli_Linux_x86_64.tar.gz | tar -xz rudder-cli
         chmod +x rudder-cli
         sudo mv rudder-cli /usr/local/bin/
