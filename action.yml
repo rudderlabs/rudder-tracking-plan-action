@@ -58,4 +58,4 @@ runs:
       if: inputs.mode == 'apply'
       shell: bash
       run: |
-        rudder-cli tp apply -l ${{ inputs.location }}
+        rudder-cli tp apply -l ${{ inputs.location }} --confirm=false
