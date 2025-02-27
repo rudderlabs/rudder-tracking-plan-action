@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate Tracking Plans
-        uses: rudderlabs/rudder-tracking-plans-action@v1.0.0
+        uses: rudderlabs/rudder-tracking-plan-action@v1.0.0
         env:
           RUDDERSTACK_ACCESS_TOKEN: ${{ secrets.RUDDER_ACCESS_TOKEN }}
         with:
@@ -47,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Apply Tracking Plans
-        uses: rudderlabs/rudder-tracking-plans-action@v1.0.0
+        uses: rudderlabs/rudder-tracking-plan-action@v1.0.0
         env:
           RUDDERSTACK_ACCESS_TOKEN: ${{ secrets.RUDDER_ACCESS_TOKEN }}
         with:
