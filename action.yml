@@ -1,10 +1,9 @@
 name: "Rudderstack Tracking Plan Manager"
 description: "Validate and manage Rudderstack tracking plans through GitHub Actions"
-author: "Your Name"
 
 branding:
-  icon: "upload-cloud"
-  color: "blue"
+  icon: activity
+  color: purple
 
 inputs:
   location:
@@ -52,7 +51,7 @@ runs:
           exit 1
         fi
 
-    - name: Validate tracking plan
+    - name: Validate tracking plans
       if: inputs.mode == 'validate'
       shell: bash
       run: |
@@ -64,7 +63,7 @@ runs:
       run: |
         rudder-cli tp apply -l ${{ inputs.location }} --dry-run
 
-    - name: Apply tracking plan
+    - name: Apply tracking plans
       if: inputs.mode == 'apply'
       shell: bash
       run: |
