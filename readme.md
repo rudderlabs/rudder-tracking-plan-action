@@ -23,9 +23,9 @@ name: Manage Tracking Plans
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   validate:
@@ -33,11 +33,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate Tracking Plans
-        uses: your-username/rudderstack-tracking-plan-action@v1
+        uses: rudderlabs/rudder-tracking-plan-action@v1.0.0
+        env:
+          RUDDERSTACK_ACCESS_TOKEN: ${{ secrets.RUDDER_ACCESS_TOKEN }}
         with:
-          folder_path: 'tracking-plans/'
-          mode: 'review'
-          access_token: ${{ secrets.RUDDER_ACCESS_TOKEN }}
+          location: "tracking-plans/"
+          mode: "validate"
 
   apply:
     runs-on: ubuntu-latest
@@ -46,35 +47,46 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Apply Tracking Plans
-        uses: your-username/rudderstack-tracking-plan-action@v1
+        uses: rudderlabs/rudder-tracking-plan-action@v1.0.0
+        env:
+          RUDDERSTACK_ACCESS_TOKEN: ${{ secrets.RUDDER_ACCESS_TOKEN }}
         with:
-          folder_path: 'tracking-plans/'
-          mode: 'apply'
-          access_token: ${{ secrets.RUDDER_ACCESS_TOKEN }}
+          location: "tracking-plans/"
+          mode: "apply"
 ```
 
 ### Inputs
 
-| Input | Description | Required | Default |
-|-------|-------------|----------|---------|
-| `folder_path` | Path to the folder containing tracking plan files | Yes | N/A |
-| `mode` | Operation mode (`review` or `apply`) | Yes | N/A |
-| `access_token` | Rudderstack access token | Yes | N/A |
-| `cli_version` | Version of rudder-cli to use | No | v0.2.0 |
+| Input         | Description                                        | Required | Default |
+| ------------- | -------------------------------------------------- | -------- | ------- |
+| `location`    | Path to the folder containing tracking plan files  | Yes      | N/A     |
+| `mode`        | Operation mode (`validate`, `dry-run`, or `apply`) | Yes      | N/A     |
+| `cli_version` | Version of rudder-cli to use                       | No       | v0.2.0  |
+
+### Environment Variables
+
+| Variable                   | Description              | Required |
+| -------------------------- | ------------------------ | -------- |
+| `RUDDERSTACK_ACCESS_TOKEN` | Rudderstack access token | Yes      |
 
 ### Modes
 
-1. **review**: 
-   - Validates tracking plan syntax
-   - Performs a dry run of changes
-   - No actual changes are applied
+1. **validate**:
 
-2. **apply**:
+   - Validates tracking plan syntax and structure
+   - No changes are applied to your configuration
+
+2. **dry-run**:
+
+   - Simulates the application of changes
+   - Shows what would be modified without making actual changes
+
+3. **apply**:
    - Applies the tracking plan changes to your Rudderstack configuration
 
 ## Security
 
-The action securely handles your Rudderstack access token. Always store your access token in GitHub Secrets and never expose it in your workflow files.
+The action requires your Rudderstack access token to be provided via the `RUDDERSTACK_ACCESS_TOKEN` environment variable. Always store this token in GitHub Secrets and reference it in your workflow using `${{ secrets.YOUR_SECRET_NAME }}`. Never expose the token directly in your workflow files.
 
 ## License
 
