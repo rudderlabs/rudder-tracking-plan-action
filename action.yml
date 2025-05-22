@@ -33,7 +33,7 @@ runs:
           exit 1
         fi
 
-        curl -L https://github.com/rudderlabs/rudder-iac/releases/download/${{ inputs.cli_version }}/rudder-cli_Linux_x86_64.tar.gz | tar -xz rudder-cli
+        curl -L https://github.com/rudderlabs/rudder-iac/releases/download/v${{ input_version }}/rudder-cli_Linux_x86_64.tar.gz | tar -xz rudder-cli
         chmod +x rudder-cli
         sudo mv rudder-cli /usr/local/bin/
 
