@@ -20,7 +20,15 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Cache Rudder CLI
+      id: cache-rudder-cli
+      uses: actions/cache@v4
+      with:
+        path: ~/.local/bin/rudder-cli
+        key: rudder-cli-${{ inputs.cli_version }}-${{ runner.os }}-${{ runner.arch }}
+
     - name: Download Rudder CLI
+      if: steps.cache-rudder-cli.outputs.cache-hit != 'true'
       shell: bash
       run: |
         # Validate minimum CLI version
@@ -33,9 +41,35 @@ runs:
           exit 1
         fi
 
-        curl -L https://github.com/rudderlabs/rudder-iac/releases/download/${{ inputs.cli_version }}/rudder-cli_Linux_x86_64.tar.gz | tar -xz rudder-cli
-        chmod +x rudder-cli
-        sudo mv rudder-cli /usr/local/bin/
+        echo "Downloading Rudder CLI ${{ inputs.cli_version }}..."
+        
+        # Create cache directory
+        mkdir -p ~/.local/bin
+        
+        # Download and extract directly to cache location
+        curl -L https://github.com/rudderlabs/rudder-iac/releases/download/${{ inputs.cli_version }}/rudder-cli_Linux_x86_64.tar.gz | tar -xz -C ~/.local/bin rudder-cli
+        chmod +x ~/.local/bin/rudder-cli
+        
+        echo "Rudder CLI downloaded and cached successfully"
+
+    - name: Install Rudder CLI
+      shell: bash
+      run: |
+        if [ -f "$HOME/.local/bin/rudder-cli" ]; then
+          echo "Installing Rudder CLI from cache..."
+          sudo cp "$HOME/.local/bin/rudder-cli" /usr/local/bin/rudder-cli
+          sudo chmod +x /usr/local/bin/rudder-cli
+          echo "Rudder CLI installed successfully"
+        else
+          echo "::error::Rudder CLI binary not found in cache location: $HOME/.local/bin/rudder-cli"
+          echo "Cache hit status: ${{ steps.cache-rudder-cli.outputs.cache-hit }}"
+          ls -la "$HOME/.local/bin/" || echo "Directory does not exist"
+          exit 1
+        fi
+        
+        # Verify installation
+        echo "Verifying Rudder CLI installation..."
+        rudder-cli --version
 
     - name: Verify environment
       shell: bash
