@@ -73,20 +73,28 @@ runs:
     - name: Install Rudder CLI
       shell: bash
       run: |
-        echo "Cache hit status: ${{ steps.cache-rudder-cli.outputs.cache-hit }}"
-        echo "Checking for Rudder CLI at: $HOME/.local/bin/rudder-cli"
-        
-        if [ -f "$HOME/.local/bin/rudder-cli" ]; then
-          echo "Installing Rudder CLI from cache..."
-          sudo cp "$HOME/.local/bin/rudder-cli" /usr/local/bin/rudder-cli
-          sudo chmod +x /usr/local/bin/rudder-cli
-          echo "Rudder CLI installed successfully"
+        if [ "${{ steps.cache-rudder-cli.outputs.cache-hit }}" == 'true' ]; then
+          echo "Cache hit: Using cached Rudder CLI binary"
+        else
+          echo "Cache miss: Using freshly downloaded Rudder CLI binary"
         fi
-        echo "::error::Rudder CLI binary not found in cache location: $HOME/.local/bin/rudder-cli"
-        echo "Directory contents:"
-        ls -la "$HOME/.local/bin/" || echo "Directory does not exist"
-        echo "Full ~/.local directory structure:"
-        find "$HOME/.local" -type f -name "*rudder*" 2>/dev/null || echo "No rudder files found"
+        
+        echo "Installing Rudder CLI from: $HOME/.local/bin/rudder-cli"
+        
+        # Check if binary exists (should always be there after cache or download step)
+        if [ ! -f "$HOME/.local/bin/rudder-cli" ]; then
+          echo "::error::Rudder CLI binary not found in cache location: $HOME/.local/bin/rudder-cli"
+          echo "Directory contents:"
+          ls -la "$HOME/.local/bin/" || echo "Directory does not exist"
+          echo "Full ~/.local directory structure:"
+          find "$HOME/.local" -type f -name "*rudder*" 2>/dev/null || echo "No rudder files found"
+          exit 1
+        fi
+        
+        # Install CLI to system location
+        sudo cp "$HOME/.local/bin/rudder-cli" /usr/local/bin/rudder-cli
+        sudo chmod +x /usr/local/bin/rudder-cli
+        echo "Rudder CLI installed successfully"
         
         # Verify installation
         echo "Verifying Rudder CLI installation..."
