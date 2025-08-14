@@ -81,14 +81,12 @@ runs:
           sudo cp "$HOME/.local/bin/rudder-cli" /usr/local/bin/rudder-cli
           sudo chmod +x /usr/local/bin/rudder-cli
           echo "Rudder CLI installed successfully"
-        else
-          echo "::error::Rudder CLI binary not found in cache location: $HOME/.local/bin/rudder-cli"
-          echo "Directory contents:"
-          ls -la "$HOME/.local/bin/" || echo "Directory does not exist"
-          echo "Full ~/.local directory structure:"
-          find "$HOME/.local" -type f -name "*rudder*" 2>/dev/null || echo "No rudder files found"
-          exit 1
         fi
+        echo "::error::Rudder CLI binary not found in cache location: $HOME/.local/bin/rudder-cli"
+        echo "Directory contents:"
+        ls -la "$HOME/.local/bin/" || echo "Directory does not exist"
+        echo "Full ~/.local directory structure:"
+        find "$HOME/.local" -type f -name "*rudder*" 2>/dev/null || echo "No rudder files found"
         
         # Verify installation
         echo "Verifying Rudder CLI installation..."
