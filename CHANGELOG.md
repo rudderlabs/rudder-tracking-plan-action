@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/rudderlabs/rudder-tracking-plan-action/compare/v1.0.2...v1.0.3) (2025-08-25)
+
+
+### Miscellaneous
+
+* bump cli version to 0.9.0 ([#10](https://github.com/rudderlabs/rudder-tracking-plan-action/issues/10)) ([8fba668](https://github.com/rudderlabs/rudder-tracking-plan-action/commit/8fba6689434b34a808d2593376578f9793f61534))
+
 ## [1.0.2](https://github.com/rudderlabs/rudder-tracking-plan-action/compare/v1.0.1...v1.0.2) (2025-07-24)
 
 
