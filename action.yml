@@ -55,16 +55,16 @@ runs:
       if: inputs.mode == 'validate'
       shell: bash
       run: |
-        rudder-cli tp validate -l ${{ inputs.location }}
+        rudder-cli validate -l ${{ inputs.location }}
 
     - name: Perform dry run
       if: inputs.mode == 'dry-run'
       shell: bash
       run: |
-        rudder-cli tp apply -l ${{ inputs.location }} --dry-run
+        rudder-cli apply -l ${{ inputs.location }} --dry-run
 
     - name: Apply tracking plans
       if: inputs.mode == 'apply'
       shell: bash
       run: |
-        rudder-cli tp apply -l ${{ inputs.location }} --confirm=false
+        rudder-cli apply -l ${{ inputs.location }} --confirm=false
