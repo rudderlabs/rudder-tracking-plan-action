@@ -20,7 +20,15 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Cache Rudder CLI
+      id: cache-rudder-cli
+      uses: actions/cache@v4
+      with:
+        path: ~/.local/bin/rudder-cli
+        key: rudder-cli-${{ inputs.cli_version }}-Linux-x86_64
+
     - name: Download Rudder CLI
+      if: steps.cache-rudder-cli.outputs.cache-hit != 'true'
       shell: bash
       run: |
         # Validate minimum CLI version
@@ -33,9 +41,64 @@ runs:
           exit 1
         fi
 
-        curl -L https://github.com/rudderlabs/rudder-iac/releases/download/${{ inputs.cli_version }}/rudder-cli_Linux_x86_64.tar.gz | tar -xz rudder-cli
-        chmod +x rudder-cli
-        sudo mv rudder-cli /usr/local/bin/
+        echo "Downloading Rudder CLI ${{ inputs.cli_version }}..."
+        
+        # Create cache directory
+        mkdir -p ~/.local/bin
+        
+        # Download and extract directly to cache location (using x86_64)
+        DOWNLOAD_URL="https://github.com/rudderlabs/rudder-iac/releases/download/${{ inputs.cli_version }}/rudder-cli_Linux_x86_64.tar.gz"
+        echo "Downloading from: $DOWNLOAD_URL"
+        
+        if ! curl -L "$DOWNLOAD_URL" | tar -xz -C ~/.local/bin rudder-cli; then
+          echo "::error::Failed to download or extract Rudder CLI"
+          exit 1
+        fi
+        
+        if [ ! -f ~/.local/bin/rudder-cli ]; then
+          echo "::error::Rudder CLI binary not found after extraction"
+          exit 1
+        fi
+        
+        chmod +x ~/.local/bin/rudder-cli
+        
+        # Verify the binary works
+        if ! ~/.local/bin/rudder-cli --version >/dev/null 2>&1; then
+          echo "::error::Downloaded Rudder CLI binary is not executable or corrupted"
+          exit 1
+        fi
+        
+        echo "Rudder CLI downloaded and cached successfully"
+
+    - name: Install Rudder CLI
+      shell: bash
+      run: |
+        if [ "${{ steps.cache-rudder-cli.outputs.cache-hit }}" == 'true' ]; then
+          echo "Cache hit: Using cached Rudder CLI binary"
+        else
+          echo "Cache miss: Using freshly downloaded Rudder CLI binary"
+        fi
+        
+        echo "Installing Rudder CLI from: $HOME/.local/bin/rudder-cli"
+        
+        # Check if binary exists (should always be there after cache or download step)
+        if [ ! -f "$HOME/.local/bin/rudder-cli" ]; then
+          echo "::error::Rudder CLI binary not found in cache location: $HOME/.local/bin/rudder-cli"
+          echo "Directory contents:"
+          ls -la "$HOME/.local/bin/" || echo "Directory does not exist"
+          echo "Full ~/.local directory structure:"
+          find "$HOME/.local" -type f -name "*rudder*" 2>/dev/null || echo "No rudder files found"
+          exit 1
+        fi
+        
+        # Install CLI to system location
+        sudo cp "$HOME/.local/bin/rudder-cli" /usr/local/bin/rudder-cli
+        sudo chmod +x /usr/local/bin/rudder-cli
+        echo "Rudder CLI installed successfully"
+        
+        # Verify installation
+        echo "Verifying Rudder CLI installation..."
+        rudder-cli --version
 
     - name: Verify environment
       shell: bash
