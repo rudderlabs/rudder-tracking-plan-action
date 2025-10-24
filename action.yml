@@ -84,10 +84,6 @@ runs:
         # Check if binary exists (should always be there after cache or download step)
         if [ ! -f "$HOME/.local/bin/rudder-cli" ]; then
           echo "::error::Rudder CLI binary not found in cache location: $HOME/.local/bin/rudder-cli"
-          echo "Directory contents:"
-          ls -la "$HOME/.local/bin/" || echo "Directory does not exist"
-          echo "Full ~/.local directory structure:"
-          find "$HOME/.local" -type f -name "*rudder*" 2>/dev/null || echo "No rudder files found"
           exit 1
         fi
         
