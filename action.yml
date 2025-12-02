@@ -22,7 +22,7 @@ runs:
   steps:
     - name: Cache Rudder CLI
       id: cache-rudder-cli
-      uses: actions/cache@v4
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       with:
         path: ~/.local/bin/rudder-cli
         key: rudder-cli-${{ inputs.cli_version }}-Linux-x86_64
