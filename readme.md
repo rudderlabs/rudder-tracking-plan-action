@@ -1,5 +1,18 @@
 # Rudderstack Tracking Plan Manager Action
 
+> [!WARNING]
+> ## Deprecation Notice
+>
+> **This GitHub Action is deprecated and will no longer receive updates.**
+>
+> Please migrate to [**rudder-cli-action**](https://github.com/rudderlabs/rudder-cli-action) which:
+> - Is actively maintained
+> - Manages more resources beyond tracking plans
+> - Provides enhanced functionality and better support
+>
+> We recommend updating your workflows to use the new action as soon as possible.
+
+
 This GitHub Action allows you to validate and manage Rudderstack tracking plans directly through your GitHub workflows.
 
 ## Features
